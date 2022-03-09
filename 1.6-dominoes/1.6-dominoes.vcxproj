@@ -146,8 +146,8 @@
     <ClCompile Include="1.6-dominoes.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <Text Include="tests\input.txt" />
-    <Text Include="tests\output.txt" />
+    <Text Include="input.txt" />
+    <Text Include="output.txt" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
