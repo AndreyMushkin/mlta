@@ -8,13 +8,14 @@ using namespace std;
 
 struct Domino
 {
-	pair<short, short> val;
+	pair<char, char> val;
 	bool excluded;
 };
 
 vector<Domino> ReadDominoes(istream& in)
 {
-	short n, val1, val2;
+	short n;
+	char val1, val2;
 	vector<Domino> dl;
 
 	in >> n;
@@ -22,15 +23,16 @@ vector<Domino> ReadDominoes(istream& in)
 	for (short i = 0; i < n; ++i)
 	{
 		in >> val1 >> val2;
-		dl.push_back({ pair<short, short>(val1, val2), false });
+		dl.push_back({ pair<char, char>(val1, val2), false });
 	}
 
 	return dl;
 }
 
-void AppendDominoToStr(string& str, Domino d)
+void AppendDominoToStr(string& str, const Domino& d)
 {
-	str.append(to_string(get<0>(d.val))).append(to_string(get<1>(d.val)));
+	str.push_back(get<0>(d.val));
+	str.push_back(get<1>(d.val));
 }
 
 void ExcludeDominoAtPos(vector<Domino>& dl, size_t pos, bool exclude)
@@ -38,49 +40,46 @@ void ExcludeDominoAtPos(vector<Domino>& dl, size_t pos, bool exclude)
 	dl[pos].excluded = exclude;
 }
 
-Domino SwapDomino(Domino d)
+Domino SwapDomino(const Domino& d)
 {
 	return { pair(get<1>(d.val), get<0>(d.val)), d.excluded };
 }
 
-string AddNextDomino(string str, Domino d, vector<Domino>& dl)
+string AddNextDomino(string str, const Domino& d, vector<Domino>& dl)
 {
 	AppendDominoToStr(str, d);
 
 	string nextStr, maxStr = str;
-	short nextDomino = get<1>(d.val);
-	size_t i = 0;
+
+	char nextDomino = get<1>(d.val);
+
+	short i = -1;
 	for (Domino d : dl)
 	{
-		if (d.excluded) 
-		{
-			++i;
-			continue;
-		}
+		++i;
+
+		if (d.excluded) continue;
 
 		if (nextDomino == get<0>(d.val))
 		{
 			ExcludeDominoAtPos(dl, i, true);
-			if ((nextStr = AddNextDomino(str, d, dl)).compare(maxStr) > 0 || 
-				nextStr.length() > maxStr.length())
+			if ((nextStr = AddNextDomino(str, d, dl)).length() > maxStr.length() || 
+				nextStr.compare(maxStr) > 0)
 			{
 				maxStr = nextStr;
 			}
 			ExcludeDominoAtPos(dl, i, false);
 		}
-
-		if (nextDomino == get<1>(d.val))
+		else if (nextDomino == get<1>(d.val))
 		{
 			ExcludeDominoAtPos(dl, i, true);
-			if ((nextStr = AddNextDomino(str, SwapDomino(d), dl)).compare(maxStr) > 0 || 
-				nextStr.length() > maxStr.length())
+			if ((nextStr = AddNextDomino(str, SwapDomino(d), dl)).length() > maxStr.length() ||
+				nextStr.compare(maxStr) > 0)
 			{
 				maxStr = nextStr;
 			}
 			ExcludeDominoAtPos(dl, i, false);
 		}
-
-		++i;
 	}
 
 	return maxStr;
@@ -99,10 +98,13 @@ string Start(vector<Domino>& dl)
 			resStr = curStr;
 		}
 
-		curStr = AddNextDomino("", SwapDomino(d), dl);
-		if ((curStr.length() > resStr.length()) || (curStr.length() == resStr.length() && curStr.compare(resStr) > 0))
+		if (get<0>(d.val) != get<1>(d.val))
 		{
-			resStr = curStr;
+			curStr = AddNextDomino("", SwapDomino(d), dl);
+			if ((curStr.length() > resStr.length()) || (curStr.length() == resStr.length() && curStr.compare(resStr) > 0))
+			{
+				resStr = curStr;
+			}
 		}
 		ExcludeDominoAtPos(dl, i, false);
 
@@ -114,8 +116,6 @@ string Start(vector<Domino>& dl)
 
 int main()
 {
-	auto start = std::chrono::steady_clock::now();
-
 	ifstream in("input.txt");
 	ofstream out("output.txt");
 
@@ -129,8 +129,5 @@ int main()
 
 	out << Start(dominoes) << '\n';
 
-	auto end = std::chrono::steady_clock::now();
-
-	cout << "Running time " << std::chrono::duration_cast<std::chrono::microseconds>(end - start).count() << " microseconds\n";
 	return 0;
 }
