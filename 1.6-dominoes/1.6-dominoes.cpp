@@ -78,7 +78,7 @@ string AddNextDomino(string str, const Domino& d, vector<Domino>& dl)
 		{
 			ExcludeDominoAtPos(dl, i, true);
 			if ((nextStr = AddNextDomino(str, d, dl)).length() > maxStr.length() || 
-				nextStr.compare(maxStr) > 0)
+				((nextStr.length() == maxStr.length()) && nextStr.compare(maxStr) > 0))
 			{
 				maxStr = nextStr;
 			}
@@ -88,7 +88,7 @@ string AddNextDomino(string str, const Domino& d, vector<Domino>& dl)
 		{
 			ExcludeDominoAtPos(dl, i, true);
 			if ((nextStr = AddNextDomino(str, SwapDomino(d), dl)).length() > maxStr.length() ||
-				nextStr.compare(maxStr) > 0)
+				((nextStr.length() == maxStr.length()) && nextStr.compare(maxStr) > 0))
 			{
 				maxStr = nextStr;
 			}
