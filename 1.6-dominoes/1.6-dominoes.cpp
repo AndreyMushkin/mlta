@@ -43,6 +43,39 @@ vector<Domino> ReadDominoes(istream& in)
 	return dl;
 }
 
+// returns:
+// -1 if str2 > str1
+//  1 if str2 < str1
+//  0 if str1 == str2
+int cmpResults(const string& str1, const string& str2)
+{
+	size_t pos1 = str1.find_first_not_of('0'), pos2 = str2.find_first_not_of('0');
+	if (pos1 == string::npos && pos2 == string::npos)
+	{
+		return 0;
+	}
+	else if (pos1 == string::npos)
+	{
+		return -1;
+	}
+	else if (pos2 == string::npos)
+	{
+		return 1;
+	}
+
+	size_t len1 = str1.size() - pos1, len2 = str2.size() - pos2;
+	if (len1 == len2)
+	{
+		return str1.compare(str2);
+	}
+	if (len1 > len2)
+	{
+		return 1;
+	}
+
+	return -1;
+}
+
 void AppendDominoToStr(string& str, const Domino& d)
 {
 	str.push_back(get<0>(d.val));
@@ -52,6 +85,17 @@ void AppendDominoToStr(string& str, const Domino& d)
 void ExcludeDominoAtPos(vector<Domino>& dl, size_t pos, bool exclude)
 {
 	dl[pos].excluded = exclude;
+}
+
+bool IsPassed(const vector<pair<char, char>>& vectOfPassed, const Domino& d)
+{
+	for (pair<char, char> passedD : vectOfPassed)
+	{
+		if (passedD == d.val)
+			return true;
+	}
+
+	return false;
 }
 
 Domino SwapDomino(const Domino& d)
@@ -64,6 +108,7 @@ string AddNextDomino(string str, const Domino& d, vector<Domino>& dl)
 	AppendDominoToStr(str, d);
 
 	string nextStr, maxStr = str;
+	vector<pair<char, char>> passedDominoes;
 
 	char nextDomino = get<1>(d.val);
 
@@ -72,13 +117,13 @@ string AddNextDomino(string str, const Domino& d, vector<Domino>& dl)
 	{
 		++i;
 
-		if (d.excluded) continue;
+		if (d.excluded || IsPassed(passedDominoes, d)) continue;
 
 		if (nextDomino == get<0>(d.val))
 		{
+			passedDominoes.push_back(d.val);
 			ExcludeDominoAtPos(dl, i, true);
-			if ((nextStr = AddNextDomino(str, d, dl)).length() > maxStr.length() || 
-				((nextStr.length() == maxStr.length()) && nextStr.compare(maxStr) > 0))
+			if (cmpResults((nextStr = AddNextDomino(str, d, dl)), maxStr) > 0)
 			{
 				maxStr = nextStr;
 			}
@@ -86,9 +131,9 @@ string AddNextDomino(string str, const Domino& d, vector<Domino>& dl)
 		}
 		else if (nextDomino == get<1>(d.val))
 		{
+			passedDominoes.push_back(SwapDomino(d).val);
 			ExcludeDominoAtPos(dl, i, true);
-			if ((nextStr = AddNextDomino(str, SwapDomino(d), dl)).length() > maxStr.length() ||
-				((nextStr.length() == maxStr.length()) && nextStr.compare(maxStr) > 0))
+			if (cmpResults((nextStr = AddNextDomino(str, SwapDomino(d), dl)), maxStr) > 0)
 			{
 				maxStr = nextStr;
 			}
@@ -102,27 +147,35 @@ string AddNextDomino(string str, const Domino& d, vector<Domino>& dl)
 string Start(vector<Domino>& dl)
 {
 	string resStr, curStr;
-	size_t i = 0;
+
+	vector<pair<char, char>> passedDominoes;
+
+	short i = -1;
 	for (Domino d : dl)
 	{
+		++i;
+
+		if (IsPassed(passedDominoes, d)) continue;
+
+		passedDominoes.push_back(d.val);
+
 		ExcludeDominoAtPos(dl, i, true);
 		curStr = AddNextDomino("", d, dl);
-		if ((curStr.length() > resStr.length()) || ((curStr.length() == resStr.length()) && curStr.compare(resStr) > 0))
+		if (cmpResults(curStr, resStr) > 0)
 		{
 			resStr = curStr;
 		}
 
 		if (get<0>(d.val) != get<1>(d.val))
 		{
+			passedDominoes.push_back(SwapDomino(d).val);
 			curStr = AddNextDomino("", SwapDomino(d), dl);
-			if ((curStr.length() > resStr.length()) || (curStr.length() == resStr.length() && curStr.compare(resStr) > 0))
+			if (cmpResults(curStr, resStr) > 0)
 			{
 				resStr = curStr;
 			}
 		}
 		ExcludeDominoAtPos(dl, i, false);
-
-		++i;
 	}
 
 	return resStr;
@@ -135,7 +188,7 @@ int main()
 
 	if (!in.is_open() || !out.is_open())
 	{
-		cout << "Failed to open files\n";
+		cout << "Failed to open file(s)\n";
 		return 1;
 	}
 
