@@ -43,10 +43,6 @@ vector<Domino> ReadDominoes(istream& in)
 	return dl;
 }
 
-// returns:
-// -1 if str2 > str1
-//  1 if str2 < str1
-//  0 if str1 == str2
 int cmpResults(const string& str1, const string& str2)
 {
 	size_t pos1 = str1.find_first_not_of('0'), pos2 = str2.find_first_not_of('0');
