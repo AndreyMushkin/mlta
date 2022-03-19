@@ -13,7 +13,6 @@ Windows 10 (10.0.19041) x64
 
 Мушкин Андрей ПС-21
 */
-#include <iostream>
 #include <fstream>
 
 int main()
