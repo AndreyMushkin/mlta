@@ -57,7 +57,7 @@ int main()
 	std::ofstream out("output.txt");
 
 	int N;
-	in >> N;
+	in >> N >> N;
 
 	std::vector<std::vector<int>> matrix;
 	int val;
