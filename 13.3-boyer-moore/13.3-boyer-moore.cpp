@@ -10,7 +10,15 @@
 Вывести в каждой строке через пробел
 последовательность номеров строк и позиций в строке, начиная с которых образец входит в текст.
 Нумерация строк и позиций в строке начинается с 1. Если вхождений нет, вывести No.
+
+Visual Studio 2019 (v142)
+Microsoft C++ Compiler (MSVC)
+ISO C++20 Standard (/std:c++20)
+Windows 10 (10.0.19041) x64
+
+Мушкин Андрей ПС-21
 */
+
 #include <iostream>
 #include <fstream>
 #include <string>
@@ -28,6 +36,8 @@ void MoveFrame(std::istream& in, std::deque<char>& frame, size_t offset, size_t&
 
 int main()
 {
+	setlocale(LC_ALL, "");
+
 	std::ifstream in("input.txt");
 	std::ofstream out("output.txt");
 
@@ -72,7 +82,7 @@ int main()
 		if (CompareFrameWithNeedle(frame, needle))
 			outss << curLine << " " << curLineOffset << std::endl;
 
-		offset = GetOffsetForSymbol(frame.back(), symbolOffsets, needleLength);
+		offset = GetOffsetForSymbol(std::tolower(frame.back()), symbolOffsets, needleLength);
 
 		MoveFrame(haystack, frame, offset, curLine, curLineOffset);
 	}
@@ -102,6 +112,10 @@ std::map<char, size_t> GetSymbolsOffset(const std::string& needle)
 		if (!offsets.contains(lowCh) || offsets[lowCh] > counter)
 		{
 			offsets[lowCh] = counter;
+			if (lowCh == ' ')
+			{
+				offsets['\n'] = counter;
+			}
 		}
 	}
 
