@@ -5,4 +5,4 @@
 * ~7.1 Segments~
 * ~10.14 Matrix~
 * ~11.4 Wall~
-* 13.3 Boyer-Moore algorithm
+* ~13.3 Boyer-Moore algorithm~
